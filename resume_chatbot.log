@@ -1,0 +1,16 @@
+2024-12-28 06:28:19,010 - INFO: Resume analysis completed successfully
+2024-12-28 06:28:49,749 - INFO: Resume analysis completed successfully
+2024-12-28 06:28:49,753 - ERROR: Response generation error: 'Groq' object has no attribute 'generate'
+2024-12-28 06:29:00,797 - INFO: Resume analysis completed successfully
+2024-12-28 06:29:00,800 - ERROR: Response generation error: 'Groq' object has no attribute 'generate'
+2024-12-28 06:29:30,009 - INFO: Resume analysis completed successfully
+2024-12-28 06:35:57,134 - INFO: Resume analysis completed successfully
+2024-12-28 06:36:03,786 - INFO: Resume analysis completed successfully
+2024-12-28 06:36:03,789 - ERROR: Response generation error: 'Groq' object has no attribute 'generate'
+2024-12-29 09:55:09,928 - INFO: Resume analysis completed successfully
+2024-12-29 09:55:28,609 - INFO: Resume analysis completed successfully
+2024-12-29 09:56:42,568 - INFO: Resume analysis completed successfully
+2024-12-29 10:06:43,223 - INFO: Resume analysis completed successfully
+2024-12-29 10:07:11,521 - INFO: Resume analysis completed successfully
+2024-12-29 10:08:44,633 - INFO: Resume analysis completed successfully
+2024-12-29 10:09:01,929 - INFO: Resume analysis completed successfully

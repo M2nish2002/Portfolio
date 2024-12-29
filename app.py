@@ -1,198 +1,248 @@
 import streamlit as st
-import streamlit.components.v1 as components
-import PyPDF2
-import nltk
-import json
-import re
-from sklearn.feature_extraction.text import TfidfVectorizer
-from sklearn.metrics.pairwise import cosine_similarity
+import os
+from dotenv import load_dotenv
+from chatbot import ResumeChatbot
+import openai
 
-# [Previous ResumeChatbot class remains the same]
-class ResumeChatbot:
-    def __init__(self, resume_path):
-        self.resume_path = resume_path
-        self.resume_data = self.extract_resume_data()
-        self.vectorizer = TfidfVectorizer()
-        self.prepare_knowledge_base()
+# Load environment variables
+load_dotenv()
 
-    def extract_resume_data(self):
-        try:
-            with open(self.resume_path, 'rb') as file:
-                reader = PyPDF2.PdfReader(file)
-                full_text = ""
-                for page in reader.pages:
-                    full_text += page.extract_text()
+class PortfolioWebsite:
+    def __init__(self):
+        # Configure page
+        st.set_page_config(
+            page_title="AI-Powered Portfolio",
+            page_icon="🚀",
+            layout="wide"
+        )
+        
+        # Initialize session state
+        if 'page' not in st.session_state:
+            st.session_state.page = 'Home'
+        
+        # Initialize resume chatbot
+     
 
-            return {
-                "professional_summary": self.extract_summary(full_text),
-                "skills": self.extract_skills(full_text),
-                "experience": self.extract_experience(full_text),
-                "education": self.extract_education(full_text),
-                "certifications": self.extract_certifications(full_text)
-            }
-        except Exception as e:
-            st.error(f"Error reading resume: {e}")
-            return {}
-
-    def extract_summary(self, text):
-        # Basic summary extraction
-        sentences = nltk.sent_tokenize(text)
-        return " ".join(sentences[:3]) if sentences else "No summary available."
-
-    def extract_skills(self, text):
-        skill_keywords = [
-            "Python", "Docker", "Kubernetes", 
-            "AWS", "CI/CD", "Terraform", 
-            "Linux", "Cloud", "DevOps"
+    def render_navbar(self):
+        """
+        Render navigation bar
+        """
+        st.sidebar.title("🚀 Portfolio Navigation")
+        pages = [
+            "Home", 
+            "About Me", 
+            "Skills", 
+            "Projects", 
+            "Resume Chatbot", 
+            "Contact"
         ]
-        return [skill for skill in skill_keywords if skill.lower() in text.lower()]
-
-    def extract_experience(self, text):
-        experience_pattern = r"(\d{4}-\d{4})\s*(.*?)\s*at\s*(.*)"
-        experiences = re.findall(experience_pattern, text, re.DOTALL)
-        return [
-            {
-                "period": exp[0],
-                "role": exp[1].strip(),
-                "company": exp[2].strip()
-            } for exp in experiences
-        ] if experiences else [{"role": "No experience details found"}]
-
-    def extract_education(self, text):
-        # Placeholder for education extraction
-        education_keywords = ["Bachelor", "Master", "PhD", "Degree"]
-        return [edu for edu in education_keywords if edu.lower() in text.lower()]
-
-    def extract_certifications(self, text):
-        certification_keywords = [
-            "Certified", "Certification", 
-            "AWS", "Kubernetes", "Cloud"
-        ]
-        return [cert for cert in certification_keywords if cert.lower() in text.lower()]
-
-    def prepare_knowledge_base(self):
-        self.knowledge_base = [
-            f"Skills: {', '.join(self.resume_data.get('skills', []))}",
-            f"Experience: {json.dumps(self.resume_data.get('experience', []))}",
-            f"Education: {', '.join(self.resume_data.get('education', []))}",
-            f"Certifications: {', '.join(self.resume_data.get('certifications', []))}"
-        ]
-        self.tfidf_matrix = self.vectorizer.fit_transform(self.knowledge_base)
-
-    def generate_response(self, query):
-        query = query.lower()
         
-        # Predefined response patterns
-        response_patterns = {
-            "skills": lambda: f"My key skills include: {', '.join(self.resume_data.get('skills', []))}",
-            "experience": lambda: "\n".join([
-                f"{exp['role']} at {exp.get('company', 'N/A')} ({exp.get('period', 'N/A')})" 
-                for exp in self.resume_data.get('experience', [])
-            ]),
-            "education": lambda: f"Education: {', '.join(self.resume_data.get('education', []))}",
-            "certification": lambda: f"Certifications: {', '.join(self.resume_data.get('certifications', []))}"
-        }
+        st.session_state.page = st.sidebar.radio(
+            "Go to", 
+            pages, 
+            index=pages.index(st.session_state.page)
+        )
 
-        # Check for specific keywords
-        for key, response_func in response_patterns.items():
-            if key in query:
-                return response_func()
-
-        # Fallback to similarity-based response
-        query_vector = self.vectorizer.transform([query])
-        similarities = cosine_similarity(query_vector, self.tfidf_matrix)
-        best_match_index = similarities[0].argmax()
+    def render_home_page(self):
+        """
+        Render the home page
+        """
+        st.title("👋 Welcome to My AI-Powered Portfolio")
         
-        return self.knowledge_base[best_match_index]
-    
-def load_static_files():
-    """Load HTML, CSS, and JavaScript files"""
-    try:
-        with open('index.html', 'r') as html_file:
-            html_content = html_file.read()
+        # Hero section
+        col1, col2 = st.columns([2, 1])
         
-        with open('styles.css', 'r') as css_file:
-            css_content = css_file.read()
-        
-        with open('script.js', 'r') as js_file:
-            js_content = js_file.read()
-        
-        return html_content, css_content, js_content
-    except Exception as e:
-        st.error(f"Error loading static files: {e}")
-        return "", "", ""
-
-def main():
-    st.set_page_config(
-        page_title="Professional Portfolio",
-        page_icon=":briefcase:",
-        layout="wide"
-    )
-
-    # Sidebar Navigation
-    st.sidebar.title("Portfolio Navigator")
-    page = st.sidebar.radio(
-        "Explore Sections", 
-        ["Home", "About", "Skills", "Experience", "Resume Chatbot", "Full Website"]
-    )
-
-    # Initialize Resume Chatbot
-    try:
-        chatbot = ResumeChatbot('manish_ML.pdf')
-    except Exception as e:
-        st.error(f"Could not initialize chatbot: {e}")
-        return
-
-    # Load Static Files
-    html_content, css_content, js_content = load_static_files()
-
-    # Page Routing
-    if page == "Full Website":
-        # Render full static website within Streamlit
-        st.markdown(f"<style>{css_content}</style>", unsafe_allow_html=True)
-        components.html(html_content, height=1000, scrolling=True)
-        
-        # Inject JavaScript
-        components.html(f"<script>{js_content}</script>", height=0)
-
-    elif page == "Home":
-        st.title("Professional Portfolio")
-        st.write("Welcome to my digital portfolio!")
-
-    elif page == "About":
-        st.header("About Me")
-        st.write(chatbot.resume_data.get('professional_summary', 'No summary available.'))
-
-    elif page == "Skills":
-        st.header("Technical Skills")
-        skills = chatbot.resume_data.get('skills', [])
-        for skill in skills:
-            st.markdown(f"- {skill}")
-
-    
-
-    elif page == "Resume Chatbot":
-        st.header("Resume Chatbot")
-        st.write("Ask me anything about my professional background!")
-
-        # Chatbot Interface
-        user_query = st.text_input("Your question:")
-        
-        if user_query:
-            try:
-                response = chatbot.generate_response(user_query)
-                st.write(f"**Bot:** {response}")
-            except Exception as e:
-                st.error(f"Error generating response: {e}")
-
-        # Resume Download
-        with open('manish_ML.pdf', 'rb') as pdf_file:
+        with col1:
+            st.markdown("""
+            ## Hi, I'm Manish jaysingh
+            ### AI & Machine Learning Engineer
+            
+            🤖 Passionate about building intelligent systems
+            🧠 Specializing in Machine Learning & Deep Learning
+            💡 Transforming ideas into innovative solutions
+            """)
+            
             st.download_button(
                 label="Download Resume",
-                data=pdf_file.read(),
-                file_name="Professional_Resume.pdf",
+                data=open("manish_ML.pdf", "rb").read(),
+                file_name="manish_Resume.pdf",
                 mime="application/pdf"
             )
+        
+        with col2:
+            st.image("m.jpg", width=300)
+
+    def render_about_page(self):
+        """
+        Render the about me page
+        """
+        st.header("🌟 About Me")
+        
+        col1, col2 = st.columns([2, 1])
+        
+        with col1:
+            st.markdown("""
+            ### Professional Summary
+            I am a dedicated aspiring AI & Machine Learning Engineer with expertise in:
+            - Developing intelligent systems
+            - Creating scalable machine learning solutions
+            - Implementing cutting-edge AI technologies
+            
+            ### Professional Philosophy
+            Believing in the power of technology to solve complex problems 
+            and drive meaningful innovation.
+            """)
+        
+        with col2:
+            st.image("m.jpg", width=300)
+
+    def render_skills_page(self):
+        """
+        Render skills page with interactive visualization
+        """
+        st.header("💻 Technical Skills")
+        
+        skills = {
+            "Programming Languages": [
+                ("Python", 90),
+                
+                ("Java",95)
+            ],
+            "Frameworks": [
+                ("TensorFlow", 85),
+                ("Flask", 75),
+                ("Streamlit", 80)
+            ],
+            "Cloud & DevOps": [
+                ("AWS", 70),
+                ("Docker", 70),
+                
+            ]
+        }
+        
+        for category, skill_list in skills.items():
+            st.subheader(category)
+            for skill, level in skill_list:
+                st.progress(level)
+                st.write(f"{skill}: {level}%")
+
+    def render_projects_page(self):
+        """
+        Render projects with detailed information
+        """
+        st.header("🚀 Featured Projects")
+        
+        projects = [
+            {
+                "name": "Chicken disease classification",
+                "description": "binary classification application",
+                "technologies": ["Python", "AWS", "Docker","Flask","Github action","CI/CD"],
+                "github": "https://github.com/M2nish2002/chicken-disease-classification"
+            },
+            {
+                "name": "Next word predictor",
+                "description": "Trained on Conan Doyle's 'The Adventures of Sherlock Holmes' as our dataset",
+                "technologies": ["TensorFlow", "Python", "Streamlit",],
+                "github": "https://github.com/M2nish2002/LSTM_Next_Word_predictor"
+            },
+            {
+                "name": "Tweet sentiment analysis",
+                "description": "Trained on a million tweets",
+                "technologies": ["TensorFlow", "Python", "NLTK","Re"],
+                "github": "https://github.com/M2nish2002/NLP"
+            }
+        ]
+        
+        for project in projects:
+            with st.expander(project["name"]):
+                st.write(project["description"])
+                st.write("Technologies:", ", ".join(project["technologies"]))
+                st.link_button("View on GitHub", project["github"])
+
+    def render_resume_chatbot_page(self):
+        st.title("ChatGPT-like clone")
+
+        # Set OpenAI API key
+        openai.api_key = st.secrets["OPENAI_API_KEY"]
+
+        # Default model and message history setup
+        if "openai_model" not in st.session_state:
+            st.session_state["openai_model"] = "gpt-3.5-turbo"
+
+        if "messages" not in st.session_state:
+            st.session_state.messages = []
+
+        # Display chat messages
+        for message in st.session_state.messages:
+            with st.chat_message(message["role"]):
+                st.markdown(message["content"])
+
+        # Capture user input
+        if prompt := st.chat_input("What is up?"):
+            st.session_state.messages.append({"role": "user", "content": prompt})
+            with st.chat_message("user"):
+                st.markdown(prompt)
+
+            # Fetch assistant response from OpenAI API
+            with st.chat_message("assistant"):
+                try:
+                    response = openai.chat.completions.create(
+                        model=st.session_state["openai_model"],
+                        messages=[{"role": m["role"], "content": m["content"]} for m in st.session_state.messages],
+                        stream=True
+                    )
+
+                    assistant_message = ""
+                    for chunk in response:
+                        if 'choices' in chunk:
+                            assistant_message += chunk['choices'][0]['delta'].get('content', '')
+                            st.write(assistant_message)  # Write response incrementally
+
+                    # Append the assistant's response to the message history
+                    st.session_state.messages.append({"role": "assistant", "content": assistant_message})
+
+                
+                except Exception as e:
+                    st.error(f"An error occurred: {e}")
+
+    def render_contact_page(self):
+        """
+        Render contact page
+        """
+        st.header("📞 Contact Me")
+        
+        contact_form = st.form(key="contact_form")
+        
+        name = contact_form.text_input("Your Name")
+        email = contact_form.text_input("Your Email")
+        message = contact_form.text_area("Your Message")
+        
+        submit_button = contact_form.form_submit_button("Send Message")
+        
+        if submit_button:
+            st.success("Message sent successfully!")
+
+    def render_page(self):
+        """
+        Render the appropriate page based on navigation
+        """
+        self.render_navbar()
+        
+        page_renderers = {
+            "Home": self.render_home_page,
+            "About Me": self.render_about_page,
+            "Skills": self.render_skills_page,
+            "Projects": self.render_projects_page,
+            "Resume Chatbot": self.render_resume_chatbot_page,
+            "Contact": self.render_contact_page
+        }
+        
+        # Render selected page
+        page_renderers[st.session_state.page]()
+
+def main():
+    portfolio = PortfolioWebsite()
+    portfolio.render_page()
 
 if __name__ == "__main__":
     main()

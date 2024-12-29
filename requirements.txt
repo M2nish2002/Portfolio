@@ -1,0 +1,5 @@
+# Groq Cloud API
+groq
+
+# Environment Variables
+python-dotenv

@@ -10,3 +10,16 @@ nltk==3.8.1
 # Machine Learning and Data Processing
 scikit-learn==1.3.2
 numpy==1.24.3
+
+
+
+
+
+
+
+
+
+
+
+
+
