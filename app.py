@@ -164,7 +164,7 @@ class PortfolioWebsite:
         st.title("ChatGPT-like clone")
 
         # Set OpenAI API key
-        openai.api_key = ${{ secrets.OPENAI_API_SECRET }}
+        openai.api_key = ${{ secrets.OPENAI_API_KEY }}
         # Default model and message history setup
         if "openai_model" not in st.session_state:
             st.session_state["openai_model"] = "gpt-3.5-turbo"
