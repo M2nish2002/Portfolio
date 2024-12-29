@@ -143,7 +143,8 @@ class PortfolioWebsite:
                 "name": "Next word predictor",
                 "description": "Trained on Conan Doyle's 'The Adventures of Sherlock Holmes' as our dataset",
                 "technologies": ["TensorFlow", "Python", "Streamlit",],
-                "github": "https://github.com/M2nish2002/LSTM_Next_Word_predictor"
+                "github": "https://github.com/M2nish2002/LSTM_Next_Word_predictor",
+                "Link":"https://m2nish2002-lstm-next-word-predictor-app-bk0gnu.streamlit.app/"
             },
             {
                 "name": "Tweet sentiment analysis",
