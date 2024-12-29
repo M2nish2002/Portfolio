@@ -163,7 +163,7 @@ class PortfolioWebsite:
 
     def render_resume_chatbot_page(self):
         st.title("ChatGPT-like clone")
-        key=os.environ["key"]
+        key=os.getenv("key")
 
         # Set OpenAI API key
         openai.api_key = key
