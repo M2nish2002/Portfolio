@@ -1,13 +1,10 @@
-import os
+
 import re
-import logging
+
 import PyPDF2
 import pdfplumber
 from dotenv import load_dotenv
-from groq import Groq
-import json
-import torch
-from transformers import AutoTokenizer,AutoModelForCausalLM
+
 import os
 import PyPDF2
 import openai
@@ -19,84 +16,13 @@ from langchain.vectorstores import FAISS
 from langchain.chains import RetrievalQA
 
 class ResumeChatbot:
-    def __init__(self, pdf_path: str, api_key: str):
-        """
-        Initialize the Resume Chatbot
+    def __init__(self, pdf_path: str):
        
-        :param pdf_path: Path to the resume PDF
-        :param api_key: OpenAI API key
-        """
-        # Set OpenAI API key
-        openai.api_key = api_key
        
         # Extract text from PDF
         self.resume_text = self._extract_pdf_text(pdf_path)
        
-        # Create vector store for semantic search
-        self._create_vector_store()
-       
-        # Initialize LLM
-        self._initialize_llm()
-    
-    def _extract_pdf_text(self, pdf_path: str) -> str:
-        """
-        Extract text from PDF file
-       
-        :param pdf_path: Path to PDF file
-        :return: Extracted text from PDF
-        """
-        with open(pdf_path, 'rb') as file:
-            reader = PyPDF2.PdfReader(file)
-            text = ""
-            for page in reader.pages:
-                text += page.extract_text()
-        return text
-   
-    def _create_vector_store(self):
-        """
-        Create vector store for semantic search
-        """
-        # Split text into chunks
-        text_splitter = RecursiveCharacterTextSplitter(
-            chunk_size=1000,
-            chunk_overlap=200
-        )
-        texts = text_splitter.split_text(self.resume_text)
-       
-        # Create embeddings
-        embeddings = OpenAIEmbeddings()
-       
-        # Create vector store
-        self.vector_store = FAISS.from_texts(texts, embeddings)
-   
-    def _initialize_llm(self):
-        """
-        Initialize Language Model
-        """
-        self.llm = ChatOpenAI(
-            model_name="gpt-3.5-turbo",
-            temperature=0.3
-        )
-       
-        # Create retrieval QA chain
-        self.qa_chain = RetrievalQA.from_chain_type(
-            llm=self.llm,
-            chain_type="stuff",
-            retriever=self.vector_store.as_retriever(search_kwargs={"k": 3})
-        )
-   
-    def ask_question(self, query: str) -> str:
-        """
-        Ask a question about the resume
-       
-        :param query: User's question
-        :return: AI-generated answer
-        """
-        try:
-            response = self.qa_chain.run(query)
-            return response
-        except Exception as e:
-            return f"An error occurred: {str(e)}"
+        
    
     def get_resume_summary(self) -> str:
         """
@@ -382,29 +308,6 @@ class ResumeChatbot:
         summary.append(f"Skills: {', '.join(self.resume_data.get('skills', []))}")
         return " ".join(summary)
     
-    def generate_response(self, user_query):
-        # Use the extracted resume text as context
-        messages = [
-            {"role": "system", "content": "You are a chatbot trained on a resume."},
-            {"role": "system", "content": f"Here is the resume data: {self.resume_text}"},
-            {"role": "user", "content": user_query},
-        ]
-
-        input_ids = self.tokenizer.apply_chat_template(
-            messages,
-            add_generation_prompt=True,
-            return_tensors="pt"
-        ).to(self.model.device)
-
-        outputs = self.model.generate(
-            input_ids,
-            max_new_tokens=256,
-            temperature=0.6,
-            top_p=0.9,
-        )
-        response = outputs[0][input_ids.shape[-1]:]
-        return self.tokenizer.decode(response, skip_special_tokens=True)
-             
             
     
     
