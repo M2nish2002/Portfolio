@@ -2,12 +2,9 @@
 python-dotenv
 openai
 # Web Framework
-streamlit==1.29.0
+streamlit
 
 # PDF Processing
-PyPDF2==3.0.1
+PyPDF2
 
 
-# Machine Learning and Data Processing
-scikit-learn==1.3.2
-numpy==1.24.3
