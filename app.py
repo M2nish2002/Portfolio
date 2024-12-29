@@ -164,7 +164,7 @@ class PortfolioWebsite:
         st.title("ChatGPT-like clone")
 
         # Set OpenAI API key
-        openai.api_key = st.secrets["OPENAI_API_KEY"]
+        openai.api_key = "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"
 
         # Default model and message history setup
         if "openai_model" not in st.session_state:
