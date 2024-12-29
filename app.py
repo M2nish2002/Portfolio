@@ -3,6 +3,7 @@ import streamlit as st
 from dotenv import load_dotenv
 
 import openai
+import os
 
 # Load environment variables
 load_dotenv()
@@ -162,9 +163,10 @@ class PortfolioWebsite:
 
     def render_resume_chatbot_page(self):
         st.title("ChatGPT-like clone")
+        key=os.environ["key"]
 
         # Set OpenAI API key
-        openai.api_key = ${{ secrets.OPENAI_API_KEY }}
+        openai.api_key = key
         # Default model and message history setup
         if "openai_model" not in st.session_state:
             st.session_state["openai_model"] = "gpt-3.5-turbo"
