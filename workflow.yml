@@ -1,0 +1,2 @@
+env:
+  key:${{secrets.OPENAP_API_KEY}}
