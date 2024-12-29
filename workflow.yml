@@ -1,2 +1,29 @@
-env:
-  key:${{secrets.OPENAI_API_KEY}}
+name: Deploy Streamlit App
+
+on:
+  push:
+    branches:
+      - main  # Change this to your default branch if it's different
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Set up Python
+      uses: actions/setup-python@v2
+      with:
+        python-version: '3.8'  # Specify the Python version you need
+
+    - name: Install dependencies
+      run: |
+        pip install -r requirements.txt  # Ensure you have a requirements.txt file
+
+    - name: Run Streamlit app
+      env:
+        key: ${{ secrets.OPENAI_API_KEY }}  # Set the environment variable
+      run: |
+        streamlit run app.py  # Run your Streamlit app
