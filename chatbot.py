@@ -3,17 +3,11 @@ import re
 
 import PyPDF2
 import pdfplumber
-from dotenv import load_dotenv
 
-import os
-import PyPDF2
-import openai
-from typing import List, Dict
-from langchain_openai import ChatOpenAI
-from langchain.text_splitter import RecursiveCharacterTextSplitter
-from langchain.embeddings import OpenAIEmbeddings
-from langchain.vectorstores import FAISS
-from langchain.chains import RetrievalQA
+
+
+
+
 
 class ResumeChatbot:
     def __init__(self, pdf_path: str):
