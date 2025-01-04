@@ -152,6 +152,12 @@ class PortfolioWebsite:
                 "description": "Trained on a million tweets",
                 "technologies": ["TensorFlow", "Python", "NLTK","Re"],
                 "github": "https://github.com/M2nish2002/NLP"
+            },
+            {
+                "name": "Bottle Flip Game",
+                "description": "Computer vision based game played by two people ",
+                "technologies": ["opencv", "Python", "Numpy","Mediapipe"],
+                "github": "https://github.com/M2nish2002/bottle_flip_game"
             }
         ]
         
