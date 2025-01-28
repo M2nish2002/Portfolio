@@ -2,7 +2,7 @@ import streamlit as st
 
 from dotenv import load_dotenv
 
-import openai
+import google.generativeai as genai
 import os
 
 # Load environment variables
@@ -167,18 +167,38 @@ class PortfolioWebsite:
                 st.write("Technologies:", ", ".join(project["technologies"]))
                 st.link_button("View on GitHub", project["github"])
 
-    def render_resume_chatbot_page(self):
-        st.title("ChatGPT-like clone")
-        key=os.getenv("key")
+    def render_resume_chatbot_page():
+        st.title("ChatGPT-like Clone with Gemini AI")
 
-        # Set OpenAI API key
-        openai.api_key = key
-        # Default model and message history setup
-        if "openai_model" not in st.session_state:
-            st.session_state["openai_model"] = "gpt-3.5-turbo"
+        # Configure Gemini API key
+        api_key = os.getenv("GEMINI_API_KEY")
+        if not api_key:
+            st.error("GEMINI_API_KEY environment variable is not set.")
+            return
+
+        genai.configure(api_key=api_key)
+
+        # Default generation configuration
+        generation_config = {
+            "temperature": 1,
+            "top_p": 0.95,
+            "top_k": 40,
+            "max_output_tokens": 8192,
+            "response_mime_type": "text/plain",
+        }
+
+        # Create the model instance
+        model = genai.GenerativeModel(
+            model_name="gemini-2.0-flash-exp",
+            generation_config=generation_config,
+        )
+
+        # Initialize chat session if not already present
+        if "chat_session" not in st.session_state:
+            st.session_state["chat_session"] = model.start_chat(history=[])
 
         if "messages" not in st.session_state:
-            st.session_state.messages = []
+            st.session_state["messages"] = []
 
         # Display chat messages
         for message in st.session_state.messages:
@@ -186,30 +206,20 @@ class PortfolioWebsite:
                 st.markdown(message["content"])
 
         # Capture user input
-        if prompt := st.chat_input("What is up?"):
+        if prompt := st.chat_input("What would you like to ask?"):
             st.session_state.messages.append({"role": "user", "content": prompt})
             with st.chat_message("user"):
                 st.markdown(prompt)
 
-            # Fetch assistant response from OpenAI API
+            # Fetch assistant response
             with st.chat_message("assistant"):
                 try:
-                    response = openai.chat.completions.create(
-                        model=st.session_state["openai_model"],
-                        messages=[{"role": m["role"], "content": m["content"]} for m in st.session_state.messages],
-                        stream=True
-                    )
-
-                    assistant_message = ""
-                    for chunk in response:
-                        if 'choices' in chunk:
-                            assistant_message += chunk['choices'][0]['delta'].get('content', '')
-                            st.write(assistant_message)  # Write response incrementally
+                    response = st.session_state["chat_session"].send_message(prompt)
+                    assistant_message = response.text
+                    st.markdown(assistant_message)
 
                     # Append the assistant's response to the message history
                     st.session_state.messages.append({"role": "assistant", "content": assistant_message})
-
-                
                 except Exception as e:
                     st.error(f"An error occurred: {e}")
 
