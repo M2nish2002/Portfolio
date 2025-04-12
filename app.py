@@ -65,7 +65,7 @@ class PortfolioWebsite:
             
             st.download_button(
                 label="Download Resume",
-                data=open("manish_ML.pdf", "rb").read(),
+                data=open("Manish_AI.pdf", "rb").read(),
                 file_name="manish_Resume.pdf",
                 mime="application/pdf"
             )
