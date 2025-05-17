@@ -135,6 +135,18 @@ class PortfolioWebsite:
         
         projects = [
             {
+                "name": "Advanced ordering bot",
+                "description": "Multimodal bot",
+                "technologies": ["Python","LangGraph","google-gemini","ChromaDB","sqlite"],
+                "github": "https://github.com/M2nish2002/CrackDetection"
+            },
+            {
+                "name": "Crack classification",
+                "description": "binary classification application",
+                "technologies": ["Python","pytorch"],
+                "github": "https://github.com/M2nish2002/CrackDetection"
+            },
+            {
                 "name": "Chicken disease classification",
                 "description": "binary classification application",
                 "technologies": ["Python", "AWS", "Docker","Flask","Github action","CI/CD"],
