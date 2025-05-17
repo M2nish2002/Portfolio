@@ -138,7 +138,7 @@ class PortfolioWebsite:
                 "name": "Advanced ordering bot",
                 "description": "Multimodal bot",
                 "technologies": ["Python","LangGraph","google-gemini","ChromaDB","sqlite"],
-                "github": "https://github.com/M2nish2002/CrackDetection"
+                "github": "https://github.com/M2nish2002/AdvancedRestuarantBot"
             },
             {
                 "name": "Crack classification",
