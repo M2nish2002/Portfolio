@@ -134,6 +134,12 @@ class PortfolioWebsite:
         st.header("🚀 Featured Projects")
         
         projects = [
+             {
+                "name": "Optimal Portfolio Allocation App",
+                "description": "M optimize their investment portfolios based on historical stock data from the S&P 500.",
+                "technologies": ["Python","streamlit","pandas","matplotlib","scipy","numpy"],
+                "github": "https://github.com/M2nish2002/portfolio_app"
+            },
             {
                 "name": "Advanced ordering bot",
                 "description": "Multimodal bot",
